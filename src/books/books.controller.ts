@@ -27,6 +27,7 @@ export class BooksController {
   }
 
   @Put('/:id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() bookData: Partial<UpdateBookDTO>,
@@ -39,6 +40,7 @@ export class BooksController {
 
 
   @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
   async deleteById(@Param('id', new ParseUUIDPipe()) id: string) {
     if (!(await this.bookService.getById(id)))
       throw new NotFoundException('Book not found');

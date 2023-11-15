@@ -4,9 +4,6 @@ import { Prisma, Book } from '@prisma/client';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateBookDTO } from './dtos/create-book.dto';
 
-type OptionalBook = {
-  [K in keyof Prisma.BookCreateInput]?: Prisma.BookCreateInput[K];
-};
 
 @Injectable()
 export class BooksService {
