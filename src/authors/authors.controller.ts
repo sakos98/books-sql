@@ -18,14 +18,14 @@ export class AuthorsController {
     return this.authorsService.findAuthorWithBooks(id);
   }
 
-  @Post('/')
   @UseGuards(JwtAuthGuard)
+  @Post('/')
   create(@Body() authorData: CreateAuthorDTO) {
     return this.authorsService.create(authorData);
   }
 
-  @Put('/:id')
   @UseGuards(JwtAuthGuard)
+  @Put('/:id')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() authorData: UpdateAuthorDTO,
@@ -36,9 +36,9 @@ export class AuthorsController {
     await this.authorsService.updateById(id, authorData);
     return { success: true };
   }
-
-  @Delete('/:id')
+  
   @UseGuards(JwtAuthGuard)
+  @Delete('/:id')
   async deleteById(@Param('id', new ParseUUIDPipe()) id: string) {
     if (!(await this.authorsService.getById(id)))
       throw new NotFoundException('Author not found');

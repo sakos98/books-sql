@@ -1,5 +1,5 @@
 // books.service.ts
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, Book } from '@prisma/client';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateBookDTO } from './dtos/create-book.dto';
@@ -10,8 +10,20 @@ export class BooksService {
   author: any;
   constructor(private prismaService: PrismaService) {}
 
-  public getAll(): Promise<Book[]> {
-    return this.prismaService.book.findMany();
+  public async getAll(): Promise<any> {
+    try {
+      const books = await this.prismaService.book.findMany({
+        include: {
+          author: true,
+          users: {
+            select: { userId: true, likes: true },
+          },
+        },
+      });
+      return books;
+    } catch (error) {
+      throw new NotFoundException('Books not found');
+    }
   }
 
   public getById(id: Book['id']): Promise<Book | null> {
@@ -75,5 +87,26 @@ export class BooksService {
     return this.prismaService.book.delete({
       where: { id },
     });
+  }
+
+  async likeBook(bookId: string, userId: string): Promise<any> {
+    try {
+      const userOnBook = await this.prismaService.userOnBooks.findUnique({
+        where: { bookId_userId: { bookId, userId } },
+      });
+
+      if (userOnBook) {
+        return await this.prismaService.userOnBooks.update({
+          where: { bookId_userId: { bookId, userId } },
+          data: { likes: { increment: 1 } },
+        });
+      } else {
+        return await this.prismaService.userOnBooks.create({
+          data: { bookId, userId, likes: 1 },
+        });
+      }
+    } catch (error) {
+      throw new NotFoundException('Book or User not found');
+    }
   }
 }

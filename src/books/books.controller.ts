@@ -20,14 +20,15 @@ export class BooksController {
     return book;
   }
 
-  @Post('/')
   @UseGuards(JwtAuthGuard)
+  @Post('/')
   create(@Body() bookData: Partial<CreateBookDTO>) {
     return this.bookService.create(bookData as CreateBookDTO);
   }
 
-  @Put('/:id')
+
   @UseGuards(JwtAuthGuard)
+  @Put('/:id')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() bookData: Partial<UpdateBookDTO>,
@@ -38,13 +39,19 @@ export class BooksController {
     return { success: true };
   }
 
-
-  @Delete('/:id')
   @UseGuards(JwtAuthGuard)
+  @Delete('/:id')
   async deleteById(@Param('id', new ParseUUIDPipe()) id: string) {
     if (!(await this.bookService.getById(id)))
       throw new NotFoundException('Book not found');
     await this.bookService.deleteById(id);
     return { success: true };
+  }
+  
+  @UseGuards(JwtAuthGuard)
+  @Post('/like')
+  async likeBook(@Body() likeBookData: { bookId: string, userId: string }) {
+    const { bookId, userId } = likeBookData;
+    return await this.bookService.likeBook(bookId, userId);
   }
 }

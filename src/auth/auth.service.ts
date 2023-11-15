@@ -3,6 +3,7 @@ import { RegisterDTO } from 'src/authors/dtos/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -10,6 +11,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   public async register(registrationData: RegisterDTO) {
@@ -37,8 +39,8 @@ export class AuthService {
   public async createSession(user: any) {
     const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
-      secret: 'xrwe4543534',
-      expiresIn: '12h',
+      secret: this.configService.get('jwt.secret'),
+      expiresIn: this.configService.get('jwt.expiresIn'),
     });
   
     return {

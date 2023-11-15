@@ -27,7 +27,8 @@ model Book {
   updatedAt DateTime @updatedAt
 
   authorId String
-  author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author   Author        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  users    UserOnBooks[]
 }
 
 enum Role {
@@ -40,11 +41,23 @@ model User {
   email    String    @unique
   role     Role      @default(USER)
   password Password?
+
+  books UserOnBooks[]
 }
 
 model Password {
-  id       String @id @default(uuid())
+  id             String @id @default(uuid())
   hashedPassword String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   String @unique
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String @unique
+}
+
+model UserOnBooks {
+  book   Book   @relation(fields: [bookId], references: [id])
+  bookId String // relation scalar field (used in the `@relation` attribute above)
+  user   User   @relation(fields: [userId], references: [id])
+  userId String // relation scalar field (used in the `@relation` attribute above)
+  likes  Int    @default(0)
+
+  @@id([bookId, userId])
 }

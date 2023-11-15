@@ -6,12 +6,14 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class UserService {
   constructor(private prismaService: PrismaService) {}
 
-  async getAll(): Promise<User[]> {
+  public async getAll(): Promise<User[]> {
     return this.prismaService.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        role: true,
+      include: {
+        books: {
+          include: {
+            book: true,
+          },
+        },
       },
     });
   }
